@@ -1,0 +1,232 @@
+# ===================================================
+# EJERCICIO 1
+# ===================================================
+
+def dividir_datos(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
+    """
+    Divide un DataFrame en:
+    - X: DataFrame con las variables independientes (todas menos la primera columna).
+    - y: Series con la variable de respuesta (primera columna).
+
+    Parámetros:
+        df (pd.DataFrame): DataFrame de entrada.
+
+    Retorna:
+        tuple[pd.DataFrame, pd.Series]: (X, y)
+    """
+    y = df.iloc[:, 0]   # Variable de respuesta
+    X = df.iloc[:, 1:]  # Variables independientes
+    return X, y
+
+# ===================================================
+# EJERCICIO 2
+# ===================================================
+
+from sklearn.model_selection import train_test_split
+import pandas as pd
+
+def crear_train_test(datos: tuple[pd.DataFrame, pd.Series]) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
+    """
+    Divide los datos en conjuntos de entrenamiento (70%) y prueba (30%).
+
+    Parámetros:
+        datos (tuple[pd.DataFrame, pd.Series]): 
+            Una tupla con:
+            - X: DataFrame con las variables independientes.
+            - y: Series con la variable de respuesta.
+
+    Retorna:
+        tuple: (X_train, X_test, y_train, y_test)
+            - X_train, X_test: DataFrames
+            - y_train, y_test: Series
+    """
+    X, y = datos
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.3, random_state=0
+    )
+    return X_train, X_test, y_train, y_test
+
+# ===================================================
+# EJERCICIO 3
+# ===================================================
+
+from sklearn.linear_model import LinearRegression
+import pandas as pd
+
+def crear_modelo(datos: tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]) -> LinearRegression:
+    """
+    Crea y entrena un modelo de regresión lineal usando sklearn.
+
+    Parámetros:
+        datos (tuple):
+            Una tupla con:
+            - X_train (pd.DataFrame): Variables independientes de entrenamiento.
+            - X_test (pd.DataFrame): Variables independientes de prueba.
+            - y_train (pd.Series): Variable dependiente de entrenamiento.
+            - y_test (pd.Series): Variable dependiente de prueba.
+
+    Retorna:
+        LinearRegression:
+            Modelo de regresión lineal entrenado.
+    """
+    X_train, X_test, y_train, y_test = datos
+    
+    # Crear modelo
+    modelo = LinearRegression()
+    
+    # Entrenar modelo
+    modelo.fit(X_train, y_train)
+    
+    return modelo
+# ===================================================
+# EJERCICIO 4
+# ===================================================
+
+import numpy as np
+import pandas as pd
+
+def predecir(modelo, datos):
+    """
+    Función que recibe un modelo de sklearn ya entrenado
+    y una tupla de la forma (X_train, X_test, y_train, y_test).
+    Retorna un arreglo numpy con las predicciones generadas
+    usando el modelo sobre el conjunto X_test.
+    """
+
+    # Validación de tipo de datos de entrada
+    if not isinstance(datos, tuple):
+        raise TypeError("El argumento 'datos' debe ser una tupla (X_train, X_test, y_train, y_test).")
+    if len(datos) != 4:
+        raise ValueError("La tupla 'datos' debe contener exactamente 4 elementos: (X_train, X_test, y_train, y_test).")
+
+    # Desempaquetado explícito
+    X_train, X_test, y_train, y_test = datos
+
+    # Validación de que X_train y X_test sean estructuras válidas
+    if not isinstance(X_train, (pd.DataFrame, np.ndarray)):
+        raise TypeError("X_train debe ser un DataFrame o ndarray.")
+    if not isinstance(X_test, (pd.DataFrame, np.ndarray, pd.Series, list)):
+        raise TypeError("X_test debe ser un DataFrame, ndarray, Series o lista.")
+    if not isinstance(y_train, (pd.Series, np.ndarray, list)):
+        raise TypeError("y_train debe ser una Serie, ndarray o lista.")
+    if not isinstance(y_test, (pd.Series, np.ndarray, list)):
+        raise TypeError("y_test debe ser una Serie, ndarray o lista.")
+
+    # Conversión de X_test a DataFrame si es necesario
+    if isinstance(X_test, pd.Series):
+        X_test = X_test.to_frame()
+    elif isinstance(X_test, list):
+        try:
+            X_test = pd.DataFrame(X_test)
+        except Exception as e:
+            raise RuntimeError(f"No se pudo convertir X_test a DataFrame: {str(e)}")
+    elif isinstance(X_test, np.ndarray):
+        try:
+            X_test = pd.DataFrame(X_test)
+        except Exception as e:
+            raise RuntimeError(f"No se pudo convertir el ndarray X_test a DataFrame: {str(e)}")
+
+    # Validación de dimensiones
+    if X_test.shape[0] == 0:
+        raise ValueError("X_test no contiene filas. No se pueden generar predicciones.")
+
+    # Validación de columnas del modelo vs X_test
+    try:
+        columnas_modelo = modelo.feature_names_in_
+        columnas_datos = X_test.columns
+        if not all(col in columnas_datos for col in columnas_modelo):
+            raise ValueError("Las columnas de X_test no coinciden con las columnas usadas para entrenar el modelo.")
+    except AttributeError:
+        pass  # Algunos modelos no guardan feature_names_in_
+
+    # Generación de predicciones
+    try:
+        predicciones = modelo.predict(X_test)
+    except Exception as e:
+        raise RuntimeError(f"Error al generar predicciones: {str(e)}")
+
+    # Validación de tipo de salida
+    if not isinstance(predicciones, np.ndarray):
+        try:
+            predicciones = np.array(predicciones)
+        except Exception as e:
+            raise RuntimeError(f"No se pudo convertir las predicciones a ndarray: {str(e)}")
+
+    # Validación de tamaño de salida
+    if len(predicciones) != len(X_test):
+        raise ValueError(f"El número de predicciones ({len(predicciones)}) no coincide con el número de filas en X_test ({len(X_test)}).")
+
+    # Comprobación de valores NaN o inf
+    if np.isnan(predicciones).any():
+        raise ValueError("Las predicciones contienen valores NaN.")
+    if np.isinf(predicciones).any():
+        raise ValueError("Las predicciones contienen valores infinitos.")
+
+    # Aseguramos que el tipo final sea numpy.ndarray
+    predicciones = np.asarray(predicciones, dtype=float)
+
+    return predicciones
+
+# ===================================================
+# EJERCICIO 5
+# ===================================================
+
+import numpy as np
+import pandas as pd
+
+def calcular_precision(modelo, X_test, y_test=None):
+    """
+    Calcula el score R^2 de un modelo entrenado usando datos de prueba.
+    Soporta entrada como (X_test, y_test) en tupla o separado.
+    """
+    # Validación tipo de modelo
+    if not hasattr(modelo, "score"):
+        raise TypeError("El modelo proporcionado no tiene método 'score'.")
+
+    # Si X_test es tupla, desempaquetar
+    if y_test is None:
+        if isinstance(X_test, tuple) and len(X_test) == 2:
+            X_test, y_test = X_test
+        else:
+            raise ValueError("Debe proporcionar y_test o pasar (X_test, y_test) como tupla.")
+
+    # Validación de entrada X_test
+    if not isinstance(X_test, (pd.DataFrame, np.ndarray)):
+        try:
+            X_test = pd.DataFrame(X_test)
+        except Exception as e:
+            raise TypeError(f"No se pudo convertir X_test a DataFrame: {str(e)}")
+    if X_test.shape[0] == 0:
+        raise ValueError("X_test está vacío.")
+
+    # Validación de entrada y_test
+    if not isinstance(y_test, (pd.Series, np.ndarray, list)):
+        try:
+            y_test = pd.Series(y_test)
+        except Exception as e:
+            raise TypeError(f"No se pudo convertir y_test a Serie: {str(e)}")
+    y_test = np.array(y_test, dtype=float)
+
+    # Asegurar longitud consistente
+    if len(X_test) != len(y_test):
+        raise ValueError(f"Longitud inconsistente: X_test tiene {len(X_test)} filas, y_test tiene {len(y_test)}.")
+
+    # Cálculo de score
+    try:
+        precision = modelo.score(X_test, y_test)
+    except Exception as e:
+        raise RuntimeError(f"No se pudo calcular el score: {str(e)}")
+
+    # Conversión explícita a np.float64
+    try:
+        precision = np.float64(precision)
+    except Exception as e:
+        raise RuntimeError(f"No se pudo convertir el score a np.float64: {str(e)}")
+
+    # Validación de valores
+    if np.isnan(precision):
+        raise ValueError("El valor de precisión es NaN.")
+    if np.isinf(precision):
+        raise ValueError("El valor de precisión es infinito.")
+
+    return precision

@@ -1,0 +1,11 @@
+# Mostrar un mensaje inicial
+print("¡Bienvenido al programa!")
+
+# Pedir datos al usuario
+usuario = input("Por favor, escribe tu nombre: ")
+
+# Mostrar solo la primera letra del nombre
+print("Primera letra:", usuario[:1])
+
+# Mostrar las dos primeras letras
+print("Primeras dos letras:", usuario[:2])

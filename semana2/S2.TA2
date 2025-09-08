@@ -1,0 +1,122 @@
+# ===================================================
+# EJERCICIO 1
+# ===================================================
+
+def sustituir(texto: str) -> str:
+    """
+    Intercambia el segundo y penúltimo carácter de una cadena.
+
+    Parámetros:
+        texto (str): Cadena de entrada.
+
+    Retorna:
+        str: Cadena modificada con el segundo y penúltimo carácter intercambiados.
+    """
+    # Convertir la cadena en lista para poder modificarla
+    caracteres = list(texto)
+
+    # Guardar las posiciones clave
+    pos_segundo = 1
+    pos_penultimo = len(caracteres) - 2
+
+    # Intercambiar usando una variable temporal
+    temp = caracteres[pos_segundo]
+    caracteres[pos_segundo] = caracteres[pos_penultimo]
+    caracteres[pos_penultimo] = temp
+
+    # Unir la lista modificada en una nueva cadena
+    resultado = "".join(caracteres)
+    return resultado
+
+# ===================================================
+# EJERCICIO 2
+# ===================================================
+
+def archivo_a_lista(ruta_archivo: str) -> list:
+    """
+    Lee un archivo de texto y devuelve una lista con sus líneas.
+
+    Parámetros:
+        ruta_archivo (str): Ruta relativa o absoluta al archivo de texto.
+
+    Retorna:
+        list: Lista de cadenas, cada una representando una línea del archivo.
+    """
+    # Inicializamos la lista manualmente
+    contenido = []
+
+    # Abrimos el archivo usando un bloque with
+    with open(ruta_archivo, mode="r", encoding="utf-8") as archivo:
+        for linea in archivo:
+            contenido.append(linea)
+
+    return contenido
+
+# ===================================================
+# EJERCICIO 3
+# ===================================================
+
+def filtrar_paises(paises: list) -> list:
+    """
+    Busca las líneas del archivo 'tesoro.txt' que correspondan 
+    a los países de la lista proporcionada.
+
+    Parámetros:
+        paises (list): Lista con nombres de países a buscar.
+
+    Retorna:
+        list: Lista de cadenas, cada una con la línea completa
+              correspondiente a cada país.
+    """
+    # Usamos comprensión de listas para hacerlo más compacto
+    resultado = []
+    for pais in paises:
+        # Buscar la línea que comience con el país seguido de tabulación
+        linea_encontrada = next((fila for fila in lineas if fila.startswith(f"{pais}\t")), None)
+        if linea_encontrada:
+            resultado.append(linea_encontrada)
+
+    return resultado
+
+# ===================================================
+# EJERCICIO 4
+# ===================================================
+
+def ECM(pronostico_jorge: list, pronostico_juan: list) -> tuple:
+    """
+    Calcula el Error Cuadrático Medio (ECM) para dos pronósticos
+    comparándolos con la tabla real de posiciones de 'Eliminatorias.txt'.
+
+    Parámetros:
+        pronostico_jorge (list): Pronóstico de Jorge (lista de países).
+        pronostico_juan (list): Pronóstico de Juan (lista de países).
+
+    Retorna:
+        tuple: (ECM_Jorge, ECM_Juan) en ese orden.
+    """
+
+    # ---- 1. Leer archivo con tabla real ----
+    ruta = "./Archivos/Eliminatorias.txt"
+    with open(ruta, encoding="utf-8") as archivo:
+        contenido = archivo.readlines()
+
+    # ---- 2. Extraer solo los nombres de países en orden real ----
+    tabla_real = [linea.strip().split("\t")[1] for linea in contenido[1:11]]
+
+    # ---- 3. Crear diccionario {pais: posicion_real} ----
+    ranking_real = {pais: idx + 1 for idx, pais in enumerate(tabla_real)}
+
+    # ---- 4. Función interna para calcular ECM ----
+    def calcular(pronostico):
+        errores = [
+            (ranking_real[pais] - (pos + 1)) ** 2
+            for pos, pais in enumerate(pronostico)
+        ]
+        return sum(errores) / len(errores)
+
+    # ---- 5. Calcular ECM para ambos ----
+    ecm_jorge = calcular(pronostico_jorge)
+    ecm_juan = calcular(pronostico_juan)
+
+    # ---- 6. Retornar resultado en tupla ----
+    return (ecm_jorge, ecm_juan)

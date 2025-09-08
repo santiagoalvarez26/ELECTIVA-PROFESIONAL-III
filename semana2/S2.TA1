@@ -1,0 +1,77 @@
+# ===================================================
+# TALLER DE FUNCIONES Y FUNCIONES ANÓNIMAS
+# ===================================================
+# ===================================================
+# Santiago Alvarez Bernal
+# ===================================================
+
+# ---------------------------
+# EJEMPLO
+# ---------------------------
+def producto(a, b):
+    """
+    Retorna el producto de dos números.
+    """
+    return a * b
+
+
+# ---------------------------
+# EJERCICIO 1
+# ---------------------------
+# Dada una lista de números, calcular su suma total.
+def sumar_elementos(numeros):
+    """
+    Suma todos los valores de una lista.
+    """
+    total = 0
+    for n in numeros:
+        total += n
+    return total
+
+
+# ---------------------------
+# EJERCICIO 2
+# ---------------------------
+# Retornar la primera letra encontrada en una lista, o "" si no hay.
+def primer_caracter(lista):
+    """
+    Busca y devuelve la primera letra en la lista.
+    """
+    for valor in lista:
+        if isinstance(valor, str) and valor.isalpha():
+            return valor
+    return ""
+
+
+# ---------------------------
+# EJERCICIO 3
+# ---------------------------
+# Separar pares e impares y devolverlos en tupla ordenada.
+def clasificar_pares_impares(numeros):
+    """
+    Retorna (pares, impares) ordenados ascendentemente.
+    """
+    pares = sorted([x for x in numeros if x % 2 == 0])
+    impares = sorted([x for x in numeros if x % 2 != 0])
+    return (pares, impares)
+
+
+# ---------------------------
+# EJERCICIO 4
+# ---------------------------
+# Función anónima que indica si un número es mayor que 50.
+es_mayor_50 = lambda n: n > 50
+
+
+# ---------------------------
+# EJERCICIO 5
+# ---------------------------
+# Retorna una función anónima que calcule el módulo respecto al mínimo repetido.
+def obtener_mod_minimo(valores):
+    """
+    Devuelve una función lambda que calcula el residuo del 
+    menor número repetido de la lista respecto a un entero dado.
+    """
+    repetidos = [x for x in valores if valores.count(x) > 1]
+    minimo = min(repetidos)
+    return lambda entero: minimo % entero

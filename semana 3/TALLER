@@ -1,0 +1,125 @@
+# ===================================================
+# EJERCICIO 1
+# ===================================================
+
+import numpy as np
+
+def promedio(area1: np.ndarray, area2: np.ndarray) -> np.float64:
+    """
+    Calcula el promedio de los valores combinados de dos arreglos de numpy.
+
+    Parámetros:
+        area1 (np.ndarray): Primer arreglo de salarios.
+        area2 (np.ndarray): Segundo arreglo de salarios.
+
+    Retorna:
+        np.float64: Promedio de todos los valores.
+    """
+    # Unir ambos arreglos
+    todos = np.append(area1, area2)
+
+    # Calcular promedio
+    return todos.mean()
+
+# ===================================================
+# EJERCICIO 2
+# ===================================================
+
+import pandas as pd
+
+def mayores(edades: pd.Series) -> tuple:
+    """
+    Retorna los dos valores más altos de una Serie de pandas.
+
+    Parámetros:
+        edades (pd.Series): Serie con nombres y edades.
+
+    Retorna:
+        tuple: (mayor_valor1, mayor_valor2)
+    """
+    # Obtener los dos valores más altos ordenados
+    top2 = edades.nlargest(2)
+
+    # Convertir a tupla
+    return tuple(top2.to_list())
+
+# ===================================================
+# EJERCICIO 3
+# ===================================================
+
+import pandas as pd
+
+def ciudades(df: pd.DataFrame) -> int:
+    """
+    Retorna el número de ciudades únicas en las que residen los empleados.
+
+    Parámetros:
+        df (pd.DataFrame): DataFrame que contiene la columna 'Ciudad Residencia'.
+
+    Retorna:
+        int: Cantidad de ciudades únicas.
+    """
+    return df["Ciudad Residencia"].nunique()
+
+# ===================================================
+# EJERCICIO 4
+# ===================================================
+
+def mayor_al_promedio(df, indice):
+    """
+    Retorna True si el salario de la persona indicada 
+    es mayor al promedio del DataFrame, False en caso contrario.
+    """
+    return df.loc[indice, "Salario (en USD)"] > df["Salario (en USD)"].mean()
+
+# ===================================================
+# EJERCICIO 5
+# ===================================================
+
+def modificar(df):
+    """
+    Retorna un nuevo DataFrame:
+      - Eliminando la segunda fila
+      - Renombrando la columna 'Salario (en USD)' a 'Sueldo (en USD)'
+    """
+    return (
+        df.drop(df.index[1])
+          .rename(columns={"Salario (en USD)": "Sueldo (en USD)"})
+    )
+
+# ===================================================
+# EJERCICIO 6
+# ===================================================
+
+def dif_longitud(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Retorna un DataFrame con los países cuya traducción
+    al inglés tiene la misma longitud que en español.
+    """
+    columnas = ['País en español', 'País en inglés']
+    return df[columnas][df['País en español'].str.len() == df['País en inglés'].str.len()]
+
+# ===================================================
+# EJERCICIO 7
+# ===================================================
+
+def paises_por_a(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Retorna un DataFrame con los países cuyo nombre en español
+    empieza por la letra 'A'.
+    """
+    columnas = ['País en español', 'País en inglés']
+    return df[columnas][df['País en español'].str.startswith("A")]
+
+# ===================================================
+# EJERCICIO 8
+# ===================================================
+
+def inicia_con(df: pd.DataFrame) -> dict:
+    """
+    Retorna un diccionario donde cada clave es una letra del abecedario
+    y su valor es el número de países cuyo nombre en inglés comienza
+    con dicha letra.
+    """
+    paises_en = df['País en inglés']
+    return {letra: paises_en.str.startswith(letra).sum() for letra in alfabeto}
